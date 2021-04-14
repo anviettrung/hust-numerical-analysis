@@ -22,7 +22,7 @@ public:
 	friend ostream& operator<<(ostream& os, const Matrix& mat) {
 		for (int i = 0; i < mat.h; i++) {
 			for (int j = 0; j < mat.w; j++)
-				os << std::fixed << std::setprecision(2) << setfill(' ') << setw(6) << mat.data[i * mat.w + j] << " ";
+				os << mat.data[i * mat.w + j] << " ";
 			os << endl;
 		}
 		return os;}
