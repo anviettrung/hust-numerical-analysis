@@ -8,7 +8,7 @@ int main()
 {
 	ifstream inp("input.txt");
 	ofstream out("output.txt");
-	Matrix<float> a(inp);
+	Matrix<double> a(inp);
 
 	a.ForwardElimination();
 	out << a;
