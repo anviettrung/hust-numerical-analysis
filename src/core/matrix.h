@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define FLOAT_EPSILON 0.000001f
+#define FLOAT_EPSILON 0.000001
 #define DOUBLE_EPSILON 0.0000000001
 
 template<typename T>
@@ -61,14 +61,6 @@ public:
 			Set(i, rk, Get(i, rk) + amp * Get(i, ri));
 	}
 
-	bool IsRowZero(int row) {
-		for (int i = 0; i < w; i++)
-			if (Get(i, row) != 0)
-				return false;
-
-		return true;
-	}
-
 	static bool CanJoin(Matrix<T>& a, Matrix<T>& b) {
 		return a.h == b.h;
 	}
@@ -88,33 +80,32 @@ public:
 		}
 	}
 
-	int ForwardElimination(ostream& os, bool printState) {
+	int ForwardElimination(int* index, ostream& os, bool printState) {
 		if (printState) {
 			os << "== Forward Elimination Process ==" << endl;
 			os << (*this) << endl;
 		}
 
-		int k_max = h;
-	    for (int k = 0; k < k_max; k++)
+		int pivotX = 0;
+		// k is pivotY
+	    for (int k = 0; k < h && pivotX < w; k++)
 	    {
 	        // Initialize maximum value and index for pivot
 	        int i_max = k;
-	        int v_max = Get(k, i_max);
+	        int v_max = Get(pivotX, i_max);
 	 
 	        /* find greater amplitude for pivot if any */
-	        for (int i = k + 1; i < k_max; i++)
-	            if (fabs(Get(k, i)) > v_max) {
-	                v_max = Get(k, i);
+	        for (int i = k + 1; i < h; i++) {
+	            if (fabs(Get(pivotX, i)) > v_max) {
+	                v_max = Get(pivotX, i);
 	                i_max = i;
 	            }
+	        }
 	 
-	        /* if a prinicipal diagonal element  is zero,
-	         * it denotes that matrix is singular, and
-	         * will lead to a division-by-zero later. */
-	        if (Get(k, i_max) == 0) {
-	        	if (printState)
-	        		os << "= End Early at k = " << k << endl;
-	        	return k;
+	        if (Get(pivotX, i_max) == 0) {
+	        	pivotX++;
+	        	k--;
+	        	continue;
 	        }
 	 
 	        /* Swap the greatest value row with current row */
@@ -129,20 +120,19 @@ public:
 	        {
 	            /* factor f to set current row kth element to 0,
 	             * and subsequently remaining kth column to 0 */
-	            T f = Get(k, i) / Get(k, k);
-	            //T f = this(i, k) / this(k, k);
+	            T f = Get(pivotX, i) / Get(pivotX, k);
 	 
 	            /* subtract fth multiple of corresponding kth
 	               row element*/
-	            for (int j = k + 1; j < w; j++) {
-	            	//this(i, j) -= f * this(k, j);
+	            for (int j = pivotX + 1; j < w; j++) {
 	                Set(j, i, Get(j, i) - f * Get(j, k));
 	            }
 	 
 	            /* filling lower triangular matrix with zeros*/
-	            //this(i, k) = 0;
-	            Set(k, i, 0);
+	            Set(pivotX, i, 0);
 	        }
+
+	        index[k] = pivotX;
 	 		
 	 		if (printState)
 	        	os << (*this) << endl;       //for matrix state
@@ -154,8 +144,8 @@ public:
 	    return -1;
 	}
 
-	int ForwardElimination() { return ForwardElimination(cout, false); }
-	int ForwardElimination(ostream& os) { return ForwardElimination(os, true); }
+	int ForwardElimination(int* index) { return ForwardElimination(index, cout, false); }
+	int ForwardElimination(int* index, ostream& os) { return ForwardElimination(index, os, true); }
 
 	// function to calculate the values of the unknowns
 	void BackSubstitution(ostream& os, int RHSwidth)
@@ -189,7 +179,6 @@ public:
 	           unknown being calculated */
 			for (int k = 0; k < RHSwidth; k++)
 	        	x.Set(k, i, x.Get(k, i) / Get(i, i));
-	        // x[i] = x[i]/mat[i][i];
 	    }
 	 
 	    os << "== Solution for the system ==" << endl;
@@ -233,12 +222,3 @@ Matrix<T>::~Matrix() {
 	if (data != NULL)
 		delete[] data;
 }
-
-// template<typename T>
-// T& Matrix<T>::operator()(int y, int x) {
-// 	if (x < 0 || x >= w || y < 0 || y >= h) {
-// 		cout << "Access Matrix out of bound!" << endl;
-// 		exit(0);
-// 	}
-// 	return data[y * w + x];
-// }
