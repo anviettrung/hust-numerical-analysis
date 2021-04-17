@@ -43,9 +43,9 @@ def save(matrix):
 
 
 if __name__=='__main__':
-    num_rows = 20
-    num_cols = 14
-    num_pivots = 6
+    num_rows = 10000
+    num_cols = 25
+    num_pivots = 20
     
     X = random_matrix(num_rows, num_cols, num_pivots)
     # print(len(X[0]), end=" ")
@@ -55,9 +55,10 @@ if __name__=='__main__':
     #         print(e, end=" ")
     #     print()6
     
-    A = X[:, :-4]
+    A = X[:, :-5]
     save(A)
     
     print()
-    B = X[:, -4:]
+    B = X[:, -5:]
+    # B = np.random.randint(3, size=(m, m))
     save(B)

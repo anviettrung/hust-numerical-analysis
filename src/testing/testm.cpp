@@ -4,7 +4,7 @@
 
 using namespace std;
 
-#define INPUT_FILE "../standard_input/full_rows/input2.txt"
+#define INPUT_FILE "../testing/input.txt"
 #define OUTPUT_FILE "output.txt"
 #define ELEMENT_PRINT_WIDTH 6
 
